@@ -16,8 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from donkey_app.views import *
+from rest_framework import routers
+
+router = routers.SimpleRouter()
+router.register(r'users', UserViewSet)
+router.register(r'chats', ChatViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    print('api/v1/', include('donkey_app.urls')),
+    path('api/v1/', include(router.urls)),
 ]
