@@ -1,7 +1,7 @@
 import uuid
-
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.contrib.auth.hashers import make_password
 
 
 class UserManager(BaseUserManager):
@@ -33,6 +33,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        if self.password:
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.username}, {self.email}'
