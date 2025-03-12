@@ -26,6 +26,7 @@ from rest_framework_simplejwt.views import (
 router = routers.SimpleRouter()
 router.register(r'users', UserViewSet)
 router.register(r'chats', ChatViewSet)
+router.register(r'response', OllamaResponseViewSet, basename='ollama-response')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
