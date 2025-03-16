@@ -1,6 +1,7 @@
 import json
 import aiohttp
 from channels.generic.websocket import AsyncWebsocketConsumer
+from .models import Chat, Message
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -34,7 +35,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "model": "llama3",
             "prompt": prompt,
             "response_format": "json",
-            "stream": False  # ВИМКНЕННЯ СТРИМІНГУ!
+            "stream": False
         }
 
         headers = {
@@ -45,8 +46,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             async with session.post(url, json=payload, headers=headers) as resp:
                 if resp.status == 200:
                     try:
-                        data = await resp.json()  # ✅ Чіткий JSON, без потоків
+                        data = await resp.json()
                         print(f"✅ Have response from Ollama: {json.dumps(data, indent=2)}")
+
                         return data.get("response", "Take response error")
                     except aiohttp.client_exceptions.ContentTypeError:
                         print("❌ Error: server did not return JSON format")
