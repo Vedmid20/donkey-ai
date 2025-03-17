@@ -1,6 +1,6 @@
 from .serializers import UserSerializer, ChatSerializer, MessageSerializer
 from .models import User, Chat, Message
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -17,6 +17,8 @@ class UserViewSet(viewsets.ModelViewSet):
 class ChatViewSet(viewsets.ModelViewSet):
     serializer_class = ChatSerializer
     queryset = Chat.objects.all()
+    http_method_names = ['post', 'get', 'delete']
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -32,10 +34,19 @@ class ChatViewSet(viewsets.ModelViewSet):
         else:
             return Chat.objects.filter(owner=user)
 
+    def destroy(self, request, *args, **kwargs):
+        try:
+            chat = Chat.objects.get(id=kwargs['pk'])
+            chat.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Chat.DoesNotExist:
+            return Response({"detail": "Chat not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     queryset = Message.objects.all()
+    http_method_names = ['post', 'get', 'delete']
 
 
 class MessagePagination(PageNumberPagination):
@@ -48,7 +59,7 @@ class OllamaResponseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
-    http_method_names = ['post', 'get']
+    http_method_names = ['post', 'get', 'delete']
 
     def create(self, request, *args, **kwargs):
         print("CREATE METHOD CALLED")
